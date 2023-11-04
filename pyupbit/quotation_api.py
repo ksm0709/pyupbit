@@ -78,6 +78,36 @@ def get_url_ohlcv(interval):
     return url
 
 
+def get_ohlcv_raw(ticker="KRW-BTC", interval="day", count=200, to=None):
+    """OHLCV 데이터 요청.
+
+    Args:
+        ticker (str, optional): 티커 이름. Defaults to "KRW-BTC".
+        interval (str, optional): "day", "minute1", "minute3", "minute5", 
+            "week", "month". Defaults to "day".
+        count (int, optional): 봉 갯수. 최대 200개 제한. Defaults to 200.
+        to (Any, optional): 봉 시각. None이면 현재시각. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
+    count = max(min(count, 200), 1)  # count: 1~200
+    url = get_url_ohlcv(interval=interval)
+
+    if to is None:
+        to = datetime.datetime.now(datetime.timezone.utc)
+        to = to.replace(tzinfo=None)
+    elif isinstance(to, str):
+        to = pd.to_datetime(to).to_pydatetime()
+    elif isinstance(to, pd._libs.tslibs.timestamps.Timestamp):
+        to = to.to_pydatetime()
+    to = to.strftime("%Y-%m-%d %H:%M:%S")
+
+    contents, _ = _call_public_api(url, market=ticker, count=count, to=to)
+    return contents
+
+
+
 def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None,
               period=0.1):
     MAX_CALL_COUNT = 200
