@@ -78,20 +78,12 @@ def get_url_ohlcv(interval):
     return url
 
 
-def get_ohlcv_raw(ticker="KRW-BTC", interval="day", count=200, to=None):
-    """OHLCV 데이터 요청.
-
-    Args:
-        ticker (str, optional): 티커 이름. Defaults to "KRW-BTC".
-        interval (str, optional): "day", "minute1", "minute3", "minute5", 
-            "week", "month". Defaults to "day".
-        count (int, optional): 봉 갯수. 최대 200개 제한. Defaults to 200.
-        to (Any, optional): 봉 시각. None이면 현재시각. Defaults to None.
-
-    Returns:
-        _type_: _description_
-    """
-    count = max(min(count, 200), 1)  # count: 1~200
+def get_ohlcv_raw(ticker="KRW-BTC",
+                  interval="day",
+                  count=200,
+                  to=None,
+                  period=0.1):
+    MAX_CALL_COUNT = 200
     url = get_url_ohlcv(interval=interval)
 
     if to is None:
@@ -101,11 +93,26 @@ def get_ohlcv_raw(ticker="KRW-BTC", interval="day", count=200, to=None):
         to = pd.to_datetime(to).to_pydatetime()
     elif isinstance(to, pd._libs.tslibs.timestamps.Timestamp):
         to = to.to_pydatetime()
-    to = to.strftime("%Y-%m-%d %H:%M:%S")
 
-    contents, _ = _call_public_api(url, market=ticker, count=count, to=to)
-    return contents
+    result = []
+    count = max(count, 1)
+    for pos in range(count, 0, -200):
+        query_count = min(MAX_CALL_COUNT, pos)
 
+        to = to.strftime("%Y-%m-%d %H:%M:%S")
+
+        contents, _ = _call_public_api(
+            url, market=ticker, count=query_count, to=to)
+        result.extend(contents)
+
+        to = datetime.datetime.strptime(
+                contents[-1]['candle_date_time_utc'], "%Y-%m-%dT%H:%M:%S")
+
+        if pos > 200:
+            time.sleep(period)
+
+    result.sort(key=lambda x: x['candle_date_time_kst'])
+    return result
 
 
 def get_ohlcv(ticker="KRW-BTC", interval="day", count=200, to=None,
