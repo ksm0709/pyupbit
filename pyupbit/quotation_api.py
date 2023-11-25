@@ -111,7 +111,8 @@ def get_ohlcv_raw(ticker="KRW-BTC",
         if pos > 200:
             time.sleep(period)
 
-    result.sort(key=lambda x: x['candle_date_time_kst'])
+    # Index 0 is the latest bar
+    result.sort(key=lambda x: x['candle_date_time_kst'], reverse=True)
     return result
 
 
