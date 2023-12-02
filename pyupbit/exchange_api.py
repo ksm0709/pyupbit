@@ -29,9 +29,9 @@ def get_tick_size(price, method="floor"):
     if method == "floor":
         func = math.floor
     elif method == "round":
-        func = round 
+        func = round
     else:
-        func = math.ceil 
+        func = math.ceil
 
     if price >= 2000000:
         tick_size = func(price / 1000) * 1000
@@ -86,7 +86,7 @@ class Upbit:
 
 
     #--------------------------------------------------------------------------
-    # 자산 
+    # 자산
     #--------------------------------------------------------------------------
     #     전체 계좌 조회
     def get_balances(self, contain_req=False):
@@ -128,7 +128,7 @@ class Upbit:
             for x in balances:
                 if x['currency'] == ticker and x['unit_currency'] == fiat:
                     if verbose is True:
-                        balance = x 
+                        balance = x
                     else:
                         balance = float(x['balance'])
                     break
@@ -242,7 +242,7 @@ class Upbit:
 
 
     #--------------------------------------------------------------------------
-    # 주문 
+    # 주문
     #--------------------------------------------------------------------------
     #     주문 가능 정보
     def get_chance(self, ticker, contain_req=False):
@@ -265,9 +265,44 @@ class Upbit:
         except Exception as x:
             print(x.__class__.__name__)
             return None
-    
 
-    #    개별 주문 조회 
+    def get_order_list(self,
+                       uuids,
+                       states=['wait', 'watch'],
+                       page=1,
+                       limit=100,
+                       contain_req=False):
+        """
+        주문 리스트 조회
+        :param uuids: UUID 리스트 
+        :param states: 주문 상태 목록(wait, watch, done, cancel)
+        :param page: default 1
+        :param limit: default 100
+        :param contain_req: Remaining-Req 포함여부
+        :return:
+        """
+        try:
+            url = "https://api.upbit.com/v1/orders"
+            data = {
+                'uuids': uuids,
+                'states': states,
+                'page': page,
+                'limit': limit,
+                'order_by': 'desc',
+            }
+            headers = self._request_headers(data)
+            result = _send_get_request(url, headers=headers, data=data)
+
+            if contain_req:
+                return result
+            else:
+                return result[0]
+        except Exception as x:
+            print(x.__class__.__name__)
+            return None
+
+
+    #    개별 주문 조회
     def get_order(self, ticker_or_uuid, state='wait', page=1, limit=100, contain_req=False):
         """
         주문 리스트 조회
@@ -307,7 +342,6 @@ class Upbit:
         except Exception as x:
             print(x.__class__.__name__)
             return None
-
 
     def get_individual_order(self, uuid, contain_req=False):
         """
@@ -352,7 +386,7 @@ class Upbit:
             return None
 
 
-    #     주문 
+    #     주문
     def buy_limit_order(self, ticker, price, volume, contain_req=False):
         """
         지정가 매수
@@ -501,7 +535,7 @@ class Upbit:
             return None
 
 
-    #     코인 출금하기  
+    #     코인 출금하기
     def withdraw_coin(self, currency, amount, address, secondary_address='None', transaction_type='default', contain_req=False):
         """
         코인 출금
@@ -554,9 +588,9 @@ class Upbit:
 
 
     #--------------------------------------------------------------------------
-    # 입금 
+    # 입금
     #--------------------------------------------------------------------------
-    #     입금 리스트 조회 
+    #     입금 리스트 조회
     def get_deposit_list(self, currency: str, contain_req=False):
         """
         입금 리스트 조회
@@ -577,7 +611,7 @@ class Upbit:
         except Exception as x:
             print(x.__class__.__name__)
             return None
-            
+
     #     개별 입금 조회
     def get_individual_deposit_order(self, uuid: str, currency: str, contain_req=False):
         """
@@ -601,16 +635,16 @@ class Upbit:
             return None
 
 
-    #     입금 주소 생성 요청 
+    #     입금 주소 생성 요청
     #     전체 입금 주소 조회
     #     개별 입금 주소 조회
     #     원화 입금하기
 
 
     #--------------------------------------------------------------------------
-    # 서비스 정보 
+    # 서비스 정보
     #--------------------------------------------------------------------------
-    #     입출금 현황 
+    #     입출금 현황
     def get_deposit_withdraw_status(self, contain_req=False):
         url = "https://api.upbit.com/v1/status/wallet"
         headers = self._request_headers()
@@ -647,14 +681,14 @@ if __name__ == "__main__":
     #print(upbit.get_balances())
     print(upbit.get_balance("KRW-BTC", verbose=True))
 
-    # order 
+    # order
     resp = upbit.buy_limit_order("KRW-XRP", 500, 10)
     print(resp)
 
 
     #-------------------------------------------------------------------------
-    # 자산 
-    #     전체 계좌 조회 
+    # 자산
+    #     전체 계좌 조회
     #balance = upbit.get_balances()
     #pprint.pprint(balance)
 
@@ -671,7 +705,7 @@ if __name__ == "__main__":
 
     #-------------------------------------------------------------------------
     # 주문
-    #     주문 가능 정보 
+    #     주문 가능 정보
     #pprint.pprint(upbit.get_chance('KRW-BTC'))
 
     #     개별 주문 조회
