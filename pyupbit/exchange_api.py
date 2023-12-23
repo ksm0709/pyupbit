@@ -89,21 +89,25 @@ class Upbit:
     # 자산
     #--------------------------------------------------------------------------
     #     전체 계좌 조회
-    def get_balances(self, contain_req=False):
+    def get_balances(self, contain_req=False, timeout=None):
         """
         전체 계좌 조회
         :param contain_req: Remaining-Req 포함여부
+        :param timeout: Timeout in sec
         :return: 내가 보유한 자산 리스트
         [contain_req == True 일 경우 Remaining-Req가 포함]
         """
-        url = "https://api.upbit.com/v1/accounts"
-        headers = self._request_headers()
-        result = _send_get_request(url, headers=headers)
-        if contain_req:
-            return result
-        else:
-            return result[0]
-
+        try:
+            url = "https://api.upbit.com/v1/accounts"
+            headers = self._request_headers()
+            result = _send_get_request(url, headers=headers, timeout=timeout)
+            if contain_req:
+                return result
+            else:
+                return result[0]
+        except Exception as x:
+            print(x.__class__.__name__)
+            return None
 
     def get_balance(self, ticker="KRW", verbose=False, contain_req=False):
         """
@@ -271,6 +275,7 @@ class Upbit:
                        states=['wait', 'watch'],
                        page=1,
                        limit=100,
+                       timeout=None,
                        contain_req=False):
         """
         주문 리스트 조회
@@ -278,6 +283,7 @@ class Upbit:
         :param states: 주문 상태 목록(wait, watch, done, cancel)
         :param page: default 1
         :param limit: default 100
+        :param timeout: Timeout in sec
         :param contain_req: Remaining-Req 포함여부
         :return:
         """
@@ -291,7 +297,10 @@ class Upbit:
                 'order_by': 'desc',
             }
             headers = self._request_headers(data)
-            result = _send_get_request(url, headers=headers, data=data)
+            result = _send_get_request(url,
+                                       headers=headers,
+                                       data=data,
+                                       timeout=timeout)
 
             if contain_req:
                 return result

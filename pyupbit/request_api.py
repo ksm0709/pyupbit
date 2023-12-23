@@ -94,7 +94,7 @@ def _send_post_request(
     return data, limit
 
 
-def _send_get_request(url, headers, data=None):
+def _send_get_request(url, headers, data=None, timeout=None):
     """Call GET method request for Upbit
 
     Args:
@@ -104,7 +104,7 @@ def _send_get_request(url, headers, data=None):
     Returns:
         The contents of requested url, parsed remaining requests count info
     """
-    resp = _call_get(url, headers=headers, data=data)
+    resp = _call_get(url, headers=headers, data=data, timeout=timeout)
     data = resp.json()
     remaining_req = resp.headers.get("Remaining-Req", "")
     limit = _parse(remaining_req)
