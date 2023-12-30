@@ -420,7 +420,7 @@ class Upbit:
                 return result[0]
         except Exception as x:
             print(x.__class__.__name__)
-            return None
+            return {'error': x.__class__.__name__}
 
     def buy_market_order(self, ticker, price, contain_req=False):
         """
@@ -444,7 +444,7 @@ class Upbit:
                 return result[0]
         except Exception as x:
             print(x.__class__.__name__)
-            return None
+            return {'error': x.__class__.__name__}
 
     def sell_market_order(self, ticker, volume, contain_req=False):
         """
@@ -468,7 +468,7 @@ class Upbit:
                 return result[0]
         except Exception as x:
             print(x.__class__.__name__)
-            return None
+            return {'error': x.__class__.__name__}
 
     def sell_limit_order(self, ticker, price, volume, contain_req=False):
         """
@@ -494,7 +494,7 @@ class Upbit:
                 return result[0]
         except Exception as x:
             print(x.__class__.__name__)
-            return None
+            return {'error': x.__class__.__name__}
 
 
     #--------------------------------------------------------------------------
